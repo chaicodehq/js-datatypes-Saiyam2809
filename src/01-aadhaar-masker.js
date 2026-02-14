@@ -28,5 +28,9 @@
  *   // => "INVALID"
  */
 export function maskAadhaar(aadhaarNumber) {
-  // Your code here
+  const regex = /[^0-9 -]/;
+  if (String(aadhaarNumber).length  !== 12 || typeof aadhaarNumber !== "string" || regex.test(aadhaarNumber) || aadhaarNumber === null || aadhaarNumber === undefined) {
+    return "INVALID"
+  }
+  return `XXXX-XXXX-${aadhaarNumber.slice(-4)}`
 }
