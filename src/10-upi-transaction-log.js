@@ -47,5 +47,59 @@
  *   //      frequentContact: "Swiggy", allAbove100: false, hasLargeTransaction: true }
  */
 export function analyzeUPITransactions(transactions) {
-  // Your code here
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return null
+  }
+  const validTransactions = transactions.filter(item => {
+    return typeof item.amount === "number" && item.amount > 0 && (item.type.toLowerCase() === "credit" || item.type.toLowerCase() === "debit")
+  })
+  if (validTransactions.length === 0) {
+  return null
+}
+  const totalCredAndDebt = validTransactions.reduce((acc, item) => {
+    if (item.type.toLowerCase() === "credit") {
+      acc.credit += item.amount
+    } else {
+      acc.debit += item.amount
+    }
+    return acc
+  }, { debit: 0, credit: 0 })
+  const netBalance = totalCredAndDebt.credit - totalCredAndDebt.debit
+  const transactionCount = validTransactions.length
+  const avgTransaction = Math.round((totalCredAndDebt.debit + totalCredAndDebt.credit) / transactionCount)
+  const highestTransaction = validTransactions.reduce((acc, item) => {
+    return item.amount > acc.amount ? item : acc
+  }, validTransactions[0])
+  const categoryBreakdown = validTransactions.reduce((acc, item) => {
+    const category = item.category
+    acc[category] = (acc[category] || 0) + item.amount
+    return acc
+  }, {})
+  const contactContact = validTransactions.reduce((acc, item) => {
+    const category = item.to
+    if (!acc[category]) {
+      acc[category] = 0
+    }
+    acc[category] += 1
+    return acc
+  }, {})
+  let frequentContact = null
+  let maxCount = 0
+  for (const [contact, count] of Object.entries(contactContact)) {
+    if (count > maxCount) {
+      maxCount = count
+      frequentContact = contact
+    }
+  }
+  const allAbove100 = validTransactions.every(item => item.amount > 100)
+  const hasLargeTransaction = validTransactions.some(item => item.amount >= 5000)
+  const totalCredit = totalCredAndDebt.credit
+  const totalDebit = totalCredAndDebt.debit
+  return {
+    totalCredit, totalDebit, netBalance,
+    transactionCount, avgTransaction,
+    highestTransaction,
+    categoryBreakdown,
+    frequentContact, allAbove100, hasLargeTransaction
+  }
 }
